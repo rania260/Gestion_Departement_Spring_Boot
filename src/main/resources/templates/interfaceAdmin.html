@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <title>Gestion Tekup</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      .delete-button {
+        background-color: #d9534f;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .delete-button:hover {
+        background-color: #c9302c;
+      }
+      table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        background-color: #fff;
+      }
+
+      table caption {
+        font-weight: bold;
+        padding: 10px;
+        background-color: #333;
+        color: #fff;
+      }
+
+      table thead {
+        background-color: #333;
+        color: #fff;
+      }
+
+      table th,
+      table td {
+        padding: 8px;
+        text-align: left;
+      }
+
+      table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      div {
+        margin: 20px auto;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        margin: 10px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <caption>
+        Students
+      </caption>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Age</th>
+          <th>CIN</th>
+          <th>Niveau</th>
+          <th>Absences</th>
+          <th>Moyenne</th>
+
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="etudiant : ${etudiant}">
+          <td contenteditable="false" th:text="${etudiant.name}">Name</td>
+          <td contenteditable="false" th:text="${etudiant.Prenom}">Prenom</td>
+          <td contenteditable="false" th:text="${etudiant.age}">Age</td>
+          <td contenteditable="false" th:text="${etudiant.Matricule}">
+            Matricule
+          </td>
+          <td contenteditable="false" th:text="${etudiant.Niveau}">Niveau</td>
+          <td contenteditable="false" th:text="${etudiant.Absences}">
+            Absences
+          </td>
+          <td contenteditable="false" th:text="${etudiant.Moyenne}">Moyenne</td>
+          <td>
+            <button
+              class="delete-button"
+              th:onclick="'deleteStudent(' + ${etudiant.id} + ')'"
+            >
+              Delete
+            </button>
+            <button onclick="toggleEdit(this)">Modifier</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <script>
+      function toggleEdit(button) {
+        var row = button.closest("tr");
+        var fields = row.querySelectorAll("[contenteditable]");
+
+        if (button.innerText === "Edit") {
+          // Enter edit mode
+          fields.forEach(function (field) {
+            field.setAttribute("contenteditable", "true");
+          });
+          button.innerText = "Save";
+        } else {
+          // Exit edit mode and save changes
+          fields.forEach(function (field) {
+            field.setAttribute("contenteditable", "false");
+          });
+          button.innerText = "Edit";
+          saveChanges(row);
+        }
+      }
+
+      function saveChanges(row) {
+        console.log("succceeesss", row);
+
+        var name = row.cells[0].innerText;
+        var prenom = row.cells[1].innerText;
+        var age = row.cells[2].innerText;
+        var matricule = row.cells[3].innerText;
+        var niveau = row.cells[4].innerText;
+        var absences = row.cells[5].innerText;
+
+        $.ajax({
+          url: "/updateStudent",
+          type: "PUT",
+          data: {
+            name: name,
+            prenom: prenom,
+            age: age,
+            matricule: matricule,
+            niveau: niveau,
+            absences: absences,
+          },
+          success: function (data) {
+            // Handle success, if needed
+          },
+          error: function () {
+            alert("An error occurred while saving changes.");
+          },
+        });
+      }
+      function deleteStudent(studentId) {
+        if (confirm("Are you sure you want to delete this student?")) {
+          $.ajax({
+            url: "/deleteEtudiant/" + studentId,
+            type: "DELETE",
+            success: function (data) {
+              if (data === "success") {
+                location.reload();
+              }
+            },
+            error: function () {
+              alert("An error occurred while deleting the student.");
+            },
+          });
+        }
+      }
+    </script>
+    <table>
+      <caption>
+        Teachers
+      </caption>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Specialty</th>
+          <th>Matricule</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="enseignant : ${enseignant}">
+          <td contenteditable="false" th:text="${enseignant.name}">Name</td>
+          <td contenteditable="false" th:text="${enseignant.Prenom}">Prenom</td>
+          <td contenteditable="false" th:text="${enseignant.specialite}">
+            Specialite
+          </td>
+          <td contenteditable="false" th:text="${enseignant.matricule}">
+            Matricule
+          </td>
+          <td>
+            <button
+              class="delete-button"
+              th:onclick="'deleteEnseignant(' + ${enseignant.id} + ')'"
+            >
+              Delete
+            </button>
+            <button onclick="toggleEditTeacher(this)">Modifier</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <script>
+      function toggleEditTeacher(button) {
+        var row = button.closest("tr");
+        var fields = row.querySelectorAll("[contenteditable]");
+
+        if (button.innerText === "Edit") {
+          fields.forEach(function (field) {
+            field.setAttribute("contenteditable", "true");
+          });
+          button.innerText = "Save";
+        } else {
+          fields.forEach(function (field) {
+            field.setAttribute("contenteditable", "false");
+          });
+          button.innerText = "Edit";
+          saveChangesTeacher(row);
+        }
+      }
+
+      function saveChangesTeacher(row) {
+        console.log("succceeesss", row);
+
+        var name = row.cells[0].innerText;
+        var prenom = row.cells[1].innerText;
+        var specialite = row.cells[2].innerText;
+        var matricule = row.cells[3].innerText;
+
+        $.ajax({
+          url: "/updateTeacher",
+          type: "PUT",
+          data: {
+            name: name,
+            prenom: prenom,
+            specialite: specialite,
+            matricule: matricule,
+          },
+          success: function (data) {},
+          error: function () {
+            alert("An error occurred while saving changes.");
+          },
+        });
+      }
+    </script>
+    <table>
+      <caption>
+        Admin Staff
+      </caption>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Job</th>
+          <th>Matricule</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="CadreAdministratif : ${CadreAdministratif}">
+          <td contenteditable="false" th:text="${CadreAdministratif.name}">
+            Name
+          </td>
+          <td contenteditable="false" th:text="${CadreAdministratif.prenom}">
+            Prenom
+          </td>
+          <td contenteditable="false" th:text="${CadreAdministratif.fonction}">
+            fonction
+          </td>
+          <td contenteditable="false" th:text="${CadreAdministratif.matricule}">
+            matricule
+          </td>
+          <td>
+            <button
+              class="delete-button"
+              th:onclick="'deleteStaff(' + ${CadreAdministratif.id} + ')'"
+            >
+              Delete
+            </button>
+            <button onclick="toggleEditStaff(this)">Modifier</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div>
+      <h2>Add New Student</h2>
+      <form th:action="@{/addStudent}" method="post">
+        <input type="text" name="name" placeholder="First Name" required />
+        <input type="text" name="prenom" placeholder="Last Name" required />
+        <input type="number" name="age" placeholder="Age" required />
+        <input type="text" name="matricule" placeholder="Matricule" required />
+        <input type="number" name="niveau" placeholder="Niveau" required />
+        <button type="submit" onclick="openAddStudentDialog()">Add</button>
+      </form>
+    </div>
+    <script>
+      function openAddStudentDialog() {
+        var addStudentDialog = document.getElementById("add-student-dialog");
+        var dialogBackground = document.getElementById(
+          "add-student-dialog-background"
+        );
+        addStudentDialog.style.display = "block";
+        dialogBackground.style.display = "block";
+
+        var addStudentForm = document.getElementById("add-student-form");
+        addStudentForm.reset();
+
+        addStudentForm.onsubmit = function (e) {
+          e.preventDefault();
+
+          var formData = new FormData(addStudentForm);
+
+          $.ajax({
+            url: "/addStudent",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+              if (data === "success") {
+                addStudentDialog.style.display = "none";
+                dialogBackground.style.display = "none";
+                location.reload();
+              }
+            },
+            error: function () {
+              alert("An error occurred while adding the student.");
+            },
+          });
+        };
+      }
+    </script>
+    <div>
+      <h2>Add New Teacher</h2>
+      <form th:action="@{/addTeacher}" method="post">
+        <input type="text" name="name" placeholder="First Name" required />
+        <input type="text" name="prenom" placeholder="Last Name" required />
+        <input
+          type="text"
+          name="specialite"
+          placeholder="Specialite"
+          required
+        />
+        <input type="text" name="matricule" placeholder="Matricule" required />
+
+        <button type="submit" onclick="openAddTeacherDialog()">Add</button>
+      </form>
+    </div>
+    <script>
+      function deleteEnseignant(teacherId) {
+        if (confirm("Are you sure you want to delete this teacher?")) {
+          $.ajax({
+            url: "/deleteEnseignant/" + teacherId,
+            type: "DELETE",
+            success: function (data) {
+              if (data === "success") {
+                location.reload();
+              }
+            },
+            error: function () {
+              alert("An error occurred while deleting the student.");
+            },
+          });
+        }
+      }
+      function openAddTeacherDialog() {
+        var addTeacherDialog = document.getElementById("add-teacher-dialog");
+        var dialogBackground = document.getElementById(
+          "add-teacher-dialog-background"
+        );
+        addTeacherDialog.style.display = "block";
+        dialogBackground.style.display = "block";
+
+        var addTeacherForm = document.getElementById("add-teacher-form");
+        addTeacherForm.reset();
+
+        addTeacherForm.onsubmit = function (e) {
+          e.preventDefault();
+
+          // Gather form data
+          var formData = new FormData(addTeacherForm);
+
+          $.ajax({
+            url: "/addTeacher",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+              if (data === "success") {
+                addTeacherDialog.style.display = "none";
+                dialogBackground.style.display = "none";
+                location.reload();
+              }
+            },
+            error: function () {
+              alert("An error occurred while adding the teacher.");
+            },
+          });
+        };
+      }
+    </script>
+    <div>
+      <h2>Add New Staff</h2>
+      <form th:action="@{/addStaff}" method="post">
+        <input type="text" name="name" placeholder="First Name" required />
+        <input type="text" name="prenom" placeholder="Last Name" required />
+        <input type="text" name="fonction" placeholder="Fonction" required />
+        <input type="text" name="matricule" placeholder="Matricule" required />
+
+        <button type="submit" onclick="openAddStaffDialog()">Add</button>
+      </form>
+    </div>
+    <script>
+      function openAddStaffDialog() {
+        // Show the add staff dialog
+        var openAddStaffDialog = document.getElementById("add-staff-dialog");
+        var dialogBackground = document.getElementById(
+          "add-staff-dialog-background"
+        );
+        openAddStaffDialog.style.display = "block";
+        dialogBackground.style.display = "block";
+
+        // Reset the form when the dialog opens
+        var addStaffForm = document.getElementById("add-staff-form");
+        addStaffForm.reset();
+
+        // Attach a form submission handler
+        addStaffForm.onsubmit = function (e) {
+          e.preventDefault(); // Prevent the default form submission
+
+          // Gather form data
+          var formData = new FormData(addStaffForm);
+
+          // Make an AJAX request to add a new student
+          $.ajax({
+            url: "/addStaff", // Adjust the URL as per your Spring Boot configuration
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+              if (data === "success") {
+                // Close the dialog and reload the page
+                addStaffDialog.style.display = "none";
+                dialogBackground.style.display = "none";
+                location.reload();
+              }
+            },
+            error: function () {
+              alert("An error occurred while adding the staff.");
+            },
+          });
+        };
+      }
+      function deleteStaff(staffId) {
+        if (confirm("Are you sure you want to delete this staff?")) {
+          $.ajax({
+            url: "/deleteCadre/" + staffId,
+            type: "DELETE",
+            success: function (data) {
+              if (data === "success") {
+                location.reload();
+              }
+            },
+            error: function () {
+              alert("An error occurred while deleting the student.");
+            },
+          });
+        }
+      }
+      function toggleEditStaff(button) {
+        var row = button.closest("tr");
+        var fields = row.querySelectorAll("[contenteditable]");
+
+        if (button.innerText === "Edit") {
+          fields.forEach(function (field) {
+            field.setAttribute("contenteditable", "true");
+          });
+          button.innerText = "Save";
+        } else {
+          fields.forEach(function (field) {
+            field.setAttribute("contenteditable", "false");
+          });
+          button.innerText = "Edit";
+          saveChangesStaff(row);
+        }
+      }
+
+      function saveChangesStaff(row) {
+        console.log("succceeesss", row);
+
+        var name = row.cells[0].innerText;
+        var prenom = row.cells[1].innerText;
+        var fonction = row.cells[2].innerText;
+        var matricule = row.cells[3].innerText;
+
+        $.ajax({
+          url: "/updateStaff",
+          type: "PUT",
+          data: {
+            name: name,
+            prenom: prenom,
+            fonction: fonction,
+            matricule: matricule,
+          },
+          success: function (data) {},
+          error: function () {
+            alert("An error occurred while saving changes.");
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

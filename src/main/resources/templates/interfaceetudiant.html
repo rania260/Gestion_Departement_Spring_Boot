@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Etudiants</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      .delete-button {
+        background-color: #d9534f;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .delete-button:hover {
+        background-color: #c9302c;
+      }
+      table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        background-color: #fff;
+      }
+
+      table caption {
+        font-weight: bold;
+        padding: 10px;
+        background-color: #333;
+        color: #fff;
+      }
+
+      table thead {
+        background-color: #333;
+        color: #fff;
+      }
+
+      table th,
+      table td {
+        padding: 8px;
+        text-align: left;
+      }
+
+      table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      div {
+        margin: 20px auto;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        margin: 10px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <caption>
+        Students
+      </caption>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Age</th>
+          <th>CIN</th>
+          <th>Niveau</th>
+          <th>Absences</th>
+          <th>Moyenne</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="etudiant : ${etudiant}">
+          <td contenteditable="false" th:text="${etudiant.name}">Name</td>
+          <td contenteditable="false" th:text="${etudiant.Prenom}">Prenom</td>
+          <td contenteditable="false" th:text="${etudiant.age}">Age</td>
+          <td contenteditable="false" th:text="${etudiant.Matricule}">
+            Matricule
+          </td>
+          <td contenteditable="false" th:text="${etudiant.Niveau}">Niveau</td>
+          <td contenteditable="false" th:text="${etudiant.Absences}">
+            Absences
+          </td>
+          <td contenteditable="false" th:text="${etudiant.Moyenne}">Moyenne</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
